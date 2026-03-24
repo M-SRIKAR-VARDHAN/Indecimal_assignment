@@ -17,7 +17,7 @@ A RAG-powered chatbot for **Indecimal**, a construction marketplace. It answers 
 
 ## Live Demo
 
-> [HuggingFace Space — coming soon](#)
+[Live Demo on HuggingFace Spaces](https://huggingface.co/spaces/primal-sage/indecimal_rag)
 
 ## Architecture
 
