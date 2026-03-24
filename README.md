@@ -1,3 +1,16 @@
+---
+title: Indecimal RAG Assistant
+emoji: 🏗️
+colorFrom: blue
+colorTo: blue
+sdk: streamlit
+sdk_version: "1.41.0"
+app_file: app.py
+pinned: false
+license: mit
+---
+
+
 # Indecimal RAG AI Assistant
 
 A RAG-powered chatbot for **Indecimal**, a construction marketplace. It answers user questions using internal documents (company policies, package specs, quality systems) instead of general knowledge.
