@@ -113,10 +113,10 @@ def evaluate_groundedness(answer: str) -> bool:
 def main():
     api_key = os.getenv("OPENROUTER_API_KEY", "")
     if not api_key or api_key == "your_key_here":
-        print("⚠️  No OPENROUTER_API_KEY found in .env — set it before running eval.")
+        print("WARNING: No OPENROUTER_API_KEY found in .env -- set it before running eval.")
         sys.exit(1)
 
-    print("Initializing RAG engine…")
+    print("Initializing RAG engine...")
     engine = RAGEngine(api_key=api_key)
     engine.initialize()
     print(f"Ready — {len(engine.chunks)} chunks indexed.\n")
@@ -151,8 +151,8 @@ def main():
                 "answer_preview": answer[:120].replace("\n", " "),
             }
         )
-        status = "✅" if (retrieval_ok and not hallucination_risk and complete) else "⚠️"
-        print(f"       {status} retrieval={'OK' if retrieval_ok else 'MISS'} | "
+        status = "PASS" if (retrieval_ok and not hallucination_risk and complete) else "WARN"
+        print(f"       [{status}] retrieval={'OK' if retrieval_ok else 'MISS'} | "
               f"halluc={'RISK' if hallucination_risk else 'OK'} | "
               f"complete={'YES' if complete else 'NO'} | "
               f"grounded={'YES' if grounded else 'NO'} | {resp_time}s\n")

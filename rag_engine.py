@@ -76,7 +76,7 @@ def _split_with_overlap(text: str, max_size: int, overlap: int) -> list[str]:
 def chunk_documents(documents: list[dict]) -> list[dict]:
     """Split documents into chunks by markdown headers, with overlap for long sections."""
     chunks = []
-    header_pattern = re.compile(r"^(#{1,3})\s+(.+)", re.MULTILINE)
+    header_pattern = re.compile(r"^(#{2,3})\s+(.+)", re.MULTILINE)
 
     for doc in documents:
         content = doc["content"]
@@ -90,19 +90,21 @@ def chunk_documents(documents: list[dict]) -> list[dict]:
             # No headers — treat whole doc as one section
             sections.append(("", content))
         else:
-            # Text before the first header
-            if matches[0].start() > 0:
-                sections.append(("", content[: matches[0].start()].strip()))
+            # Text before the first header — merge into first section
+            preamble = content[: matches[0].start()].strip() if matches[0].start() > 0 else ""
             for i, m in enumerate(matches):
                 header = m.group(0).strip()
                 start = m.end()
                 end = matches[i + 1].start() if i + 1 < len(matches) else len(content)
                 body = content[start:end].strip()
+                # Merge preamble into first section
+                if i == 0 and preamble:
+                    body = preamble + "\n\n" + body
                 sections.append((header, body))
 
         for header, body in sections:
             full_text = f"{header}\n{body}".strip() if header else body.strip()
-            if not full_text:
+            if not full_text or len(full_text.strip()) < 50:
                 continue
 
             if len(full_text) <= CHUNK_SIZE:
@@ -206,17 +208,25 @@ def generate_answer(
             {"role": "user", "content": _build_user_message(query, retrieved_chunks)},
         ],
     }
-    try:
-        resp = requests.post(OPENROUTER_API_URL, json=payload, headers=headers, timeout=30)
-        resp.raise_for_status()
-        data = resp.json()
-        return data["choices"][0]["message"]["content"]
-    except requests.exceptions.Timeout:
-        return "Error: Request to OpenRouter timed out. Please try again."
-    except requests.exceptions.HTTPError as e:
-        return f"Error from OpenRouter (HTTP {e.response.status_code}): {e.response.text[:300]}"
-    except Exception as e:
-        return f"Error generating answer: {e}"
+    # Retry up to 3 times for rate limits
+    for attempt in range(3):
+        try:
+            resp = requests.post(OPENROUTER_API_URL, json=payload, headers=headers, timeout=60)
+            if resp.status_code == 429:
+                time.sleep(2 * (attempt + 1))
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            return data["choices"][0]["message"]["content"]
+        except requests.exceptions.Timeout:
+            if attempt < 2:
+                continue
+            return "Error: Request to OpenRouter timed out. Please try again."
+        except requests.exceptions.HTTPError as e:
+            return f"Error from OpenRouter (HTTP {e.response.status_code}): {e.response.text[:300]}"
+        except Exception as e:
+            return f"Error generating answer: {e}"
+    return "Error: Rate limited after 3 retries. Please wait a moment and try again."
 
 
 # ---------------------------------------------------------------------------

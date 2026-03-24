@@ -10,14 +10,14 @@ CHUNK_SIZE = 500  # characters
 CHUNK_OVERLAP = 100  # characters
 
 # Retrieval
-TOP_K = 5
+TOP_K = 7
 
 # Documents
 DOCUMENTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "documents")
 
 # OpenRouter
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_MODEL = "google/gemini-2.0-flash-exp:free"
+OPENROUTER_MODEL = "stepfun/step-3.5-flash:free"
 
 # Ollama (bonus - local LLM)
 OLLAMA_MODEL = "phi3:mini"

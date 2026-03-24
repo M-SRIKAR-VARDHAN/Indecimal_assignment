@@ -38,7 +38,7 @@ Grounded Answer with Source Citations
 - **Why:** Documents are structured with `##` headers. Splitting by headers preserves topical coherence. Overlap prevents information loss at boundaries. Sub-chunks get the header prepended for context.
 - **Parameters:** 500 char chunks, 100 char overlap.
 
-### LLM: OpenRouter (`google/gemini-2.0-flash-exp:free`)
+### LLM: OpenRouter (`stepfun/step-3.5-flash:free`)
 - **Why:** Free tier, fast responses, good instruction following, reliable grounding to context.
 - **Bonus:** Also supports Ollama local models (`phi3:mini`) for side-by-side comparison.
 
